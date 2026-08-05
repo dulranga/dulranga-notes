@@ -58,7 +58,14 @@ export async function generateMetadata(
         source.getPage(params.slug.map(encodeURIComponent))
       : undefined;
 
-  if (!page) notFound();
+  if (!page) {
+    if (!params.slug || params.slug.length === 0) {
+      return {
+        title: "Academia",
+      };
+    }
+    notFound();
+  }
 
   return {
     title: page.data.title,
