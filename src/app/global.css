@@ -3,6 +3,7 @@
 @import "fumadocs-obsidian/css/preset.css";
 @import "fumadocs-ui/css/dusk.css";
 @import "katex/dist/katex.css";
+@import "rehype-callouts/theme/obsidian";
 
 html {
   scrollbar-gutter: stable;

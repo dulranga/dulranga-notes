@@ -11,7 +11,11 @@ import { getMDXComponents } from "@/components/mdx";
 export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   const params = await props.params;
   const source = await getSource();
-  const page = source.getPage(params.slug);
+  const page =
+    params.slug?.length
+      ? source.getPage(params.slug) ??
+        source.getPage(params.slug.map(encodeURIComponent))
+      : undefined;
 
   if (page) {
     const { body, toc } = await (
@@ -48,7 +52,11 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const params = await props.params;
   const source = await getSource();
-  const page = source.getPage(params.slug);
+  const page =
+    params.slug?.length
+      ? source.getPage(params.slug) ??
+        source.getPage(params.slug.map(encodeURIComponent))
+      : undefined;
 
   if (!page) notFound();
 

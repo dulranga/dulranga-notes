@@ -4,7 +4,7 @@ import { obsidian } from "fumadocs-obsidian";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeCallouts from "rehype-callouts";
-import { remarkMdxMermaid } from "fumadocs-core/mdx-plugins";
+import { remarkGfm, remarkMdxMermaid } from "fumadocs-core/mdx-plugins";
 
 const normalizeSlug = (seg: string) =>
   encodeURIComponent(seg.toLowerCase().replaceAll(" ", "-"));
@@ -23,7 +23,7 @@ const vault = obsidian({
   ],
   // map vault attachments to their public URLs
   url: (path) => `/vault/${path}`,
-  remarkPlugins: [remarkMath, remarkMdxMermaid],
+  remarkPlugins: [remarkGfm, remarkMath, remarkMdxMermaid],
   rehypePlugins: [rehypeKatex, rehypeCallouts],
 });
 
