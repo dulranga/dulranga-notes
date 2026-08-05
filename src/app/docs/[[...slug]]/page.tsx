@@ -6,6 +6,7 @@ import * as ObsidianComponents from "fumadocs-obsidian/ui";
 import { DocsBody, DocsPage, DocsTitle } from "fumadocs-ui/layouts/docs/page";
 
 import type { Metadata } from "next";
+import { getMDXComponents } from "@/components/mdx";
 
 export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   const params = await props.params;
@@ -16,7 +17,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
     const { body, toc } = await (
       await page.data.load()
     ).render({
-      ...defaultMdxComponents,
+      ...getMDXComponents(defaultMdxComponents),
       ...ObsidianComponents,
       a: createRelativeLink(source, page),
     });
