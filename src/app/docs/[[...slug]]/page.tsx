@@ -1,63 +1,56 @@
-import { getPageImageUrl, getPageMarkdownUrl, source } from '@/lib/source';
-import {
-  DocsBody,
-  DocsDescription,
-  DocsPage,
-  DocsTitle,
-  MarkdownCopyButton,
-  ViewOptionsPopover,
-} from 'fumadocs-ui/layouts/docs/page';
-import { notFound } from 'next/navigation';
-import { getMDXComponents } from '@/components/mdx';
-import type { Metadata } from 'next';
-import { createRelativeLink } from 'fumadocs-ui/mdx';
-import { gitConfig } from '@/lib/shared';
+import { getSource } from "@/lib/source";
+import { notFound, redirect } from "next/navigation";
+import { flattenTree } from "fumadocs-core/page-tree";
+import defaultMdxComponents, { createRelativeLink } from "fumadocs-ui/mdx";
+import * as ObsidianComponents from "fumadocs-obsidian/ui";
+import { DocsBody, DocsPage } from "fumadocs-ui/layouts/docs/page";
+import type { Metadata } from "next";
 
-export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
+export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   const params = await props.params;
+  const source = await getSource();
   const page = source.getPage(params.slug);
-  if (!page) notFound();
 
-  const MDX = page.data.body;
-  const markdownUrl = getPageMarkdownUrl(page).url;
+  if (page) {
+    const { body, toc } = await (
+      await page.data.load()
+    ).render({
+      ...defaultMdxComponents,
+      ...ObsidianComponents,
+      a: createRelativeLink(source, page),
+    });
 
-  return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription className="mb-0">{page.data.description}</DocsDescription>
-      <div className="flex flex-row gap-2 items-center border-b pb-6">
-        <MarkdownCopyButton markdownUrl={markdownUrl} />
-        <ViewOptionsPopover
-          markdownUrl={markdownUrl}
-          githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/docs/${page.path}`}
-        />
-      </div>
-      <DocsBody>
-        <MDX
-          components={getMDXComponents({
-            // this allows you to link to other pages with relative file paths
-            a: createRelativeLink(source, page),
-          })}
-        />
-      </DocsBody>
-    </DocsPage>
-  );
+    return (
+      <DocsPage toc={toc}>
+        <DocsBody>{body}</DocsBody>
+      </DocsPage>
+    );
+  }
+
+  if (!params.slug || params.slug.length === 0) {
+    const first = flattenTree(source.getPageTree().children)[0];
+    if (first) redirect(first.url);
+  }
+
+  notFound();
 }
 
 export async function generateStaticParams() {
+  const source = await getSource();
   return source.generateParams();
 }
 
-export async function generateMetadata(props: PageProps<'/docs/[[...slug]]'>): Promise<Metadata> {
+export async function generateMetadata(
+  props: PageProps<"/docs/[[...slug]]">,
+): Promise<Metadata> {
   const params = await props.params;
+  const source = await getSource();
   const page = source.getPage(params.slug);
+
   if (!page) notFound();
 
   return {
     title: page.data.title,
     description: page.data.description,
-    openGraph: {
-      images: getPageImageUrl(page).url,
-    },
   };
 }

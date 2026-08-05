@@ -3,6 +3,8 @@
 
 # generated content
 .source
+/public/vault
+/content/academia
 
 # test & build
 /coverage

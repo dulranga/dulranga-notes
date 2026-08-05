@@ -1,8 +1,9 @@
-import { source } from '@/lib/source';
+import { getSource } from '@/lib/source';
 import { llms } from 'fumadocs-core/source';
 
 export const revalidate = false;
 
-export function GET() {
+export async function GET() {
+  const source = await getSource();
   return new Response(llms(source).index());
 }

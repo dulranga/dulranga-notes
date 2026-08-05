@@ -1,51 +1,53 @@
-import { loader } from 'fumadocs-core/source';
-import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons';
-import { docsContentRoute, docsImageRoute, docsRoute } from './shared';
-import { defineDocs } from 'fumadocs-mdx/macro';
-import { metaSchema, pageSchema } from 'fumadocs-core/source/schema';
+import { dynamicLoader } from "fumadocs-core/source/dynamic";
+import { PathUtils } from "fumadocs-core/source";
+import { obsidian } from "fumadocs-obsidian";
 
-const docs = defineDocs({
-  dir: 'content/docs',
-  docs: {
-    schema: pageSchema,
-    postprocess: {
-      includeProcessedMarkdown: true,
-    },
-  },
-  meta: {
-    schema: metaSchema,
+const normalizeSlug = (seg: string) =>
+  encodeURIComponent(seg.toLowerCase().replaceAll(" ", "-"));
+
+const vault = obsidian({
+  dir: "content/academia",
+  include: [
+    "**/*.md",
+    "**/*.{png,jpg,jpeg,gif,svg,webp,avif,ico}",
+    "**/*.{pdf,mp4,mp3,webm,wav}",
+    "!**/.obsidian/**",
+    "!**/.git/**",
+    "!**/Excalidraw/**",
+    "!**/node_modules/**",
+    "!**/{Untitled,README,LICENSE}.md",
+  ],
+  // map vault attachments to their public URLs
+  url: (path) => `/vault/${path}`,
+});
+
+if (process.env.NODE_ENV === "development") {
+  void vault.devServer();
+}
+
+export const source = dynamicLoader(vault.dynamicSource(), {
+  baseUrl: "docs",
+  slugs: (file) => {
+    const dir = PathUtils.dirname(file.path);
+    const name = PathUtils.basename(file.path, PathUtils.extname(file.path));
+    const slugs: string[] = [];
+    for (const seg of dir.split("/")) {
+      if (seg.length > 0 && !/^\(.+\)$/.test(seg))
+        slugs.push(normalizeSlug(seg));
+    }
+    if (name !== "index") slugs.push(normalizeSlug(name));
+    return slugs;
   },
 });
 
-// See https://fumadocs.dev/docs/headless/source-api for more info
-export const source = loader({
-  baseUrl: docsRoute,
-  source: docs.toFumadocsSource(),
-  plugins: [lucideIconsPlugin()],
-});
-
-export function getPageImageUrl(page: (typeof source)['$inferPage']) {
-  const segments = [...page.slugs, 'image.png'];
-
-  return {
-    segments,
-    url: '/' + [page.locale, ...docsImageRoute.split('/'), ...segments].filter(Boolean).join('/'),
-  };
+export async function getSource() {
+  return source.get();
 }
 
-export function getPageMarkdownUrl(page: (typeof source)['$inferPage']) {
-  const segments = [...page.slugs, 'content.md'];
-
-  return {
-    segments,
-    url: '/' + [page.locale, ...docsContentRoute.split('/'), ...segments].filter(Boolean).join('/'),
-  };
-}
-
-export async function getLLMText(page: (typeof source)['$inferPage']) {
-  const processed = await page.data.getText('processed');
-
+export async function getLLMText(
+  page: Awaited<ReturnType<typeof getSource>>["$inferPage"],
+) {
   return `# ${page.data.title} (${page.url})
 
-${processed}`;
+${page.data.content}`;
 }
