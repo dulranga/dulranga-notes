@@ -3,7 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { flattenTree } from "fumadocs-core/page-tree";
 import defaultMdxComponents, { createRelativeLink } from "fumadocs-ui/mdx";
 import * as ObsidianComponents from "fumadocs-obsidian/ui";
-import { DocsBody, DocsPage } from "fumadocs-ui/layouts/docs/page";
+import { DocsBody, DocsPage, DocsTitle } from "fumadocs-ui/layouts/docs/page";
+
 import type { Metadata } from "next";
 
 export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
@@ -22,6 +23,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
 
     return (
       <DocsPage toc={toc}>
+        <DocsTitle>{page.data.title}</DocsTitle>
         <DocsBody>{body}</DocsBody>
       </DocsPage>
     );
