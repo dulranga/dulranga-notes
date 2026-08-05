@@ -4,7 +4,8 @@
     "private": true,
     "scripts": {
         "postinstall": "patch-package",
-        "build": "node scripts/sync-vault.mjs && next build",
+        "sync": "node scripts/sync.mjs",
+        "build": "node scripts/sync.mjs && node scripts/sync-vault.mjs && next build",
         "dev": "node scripts/sync-vault.mjs && fumadocs-obsidian dev -- next dev",
         "start": "next start",
         "dev:plain": "next dev",
@@ -13,6 +14,7 @@
     },
     "dependencies": {
         "cnfast": "^0.1.0",
+        "dotenv": "^17.4.2",
         "fumadocs-core": "16.14.0",
         "fumadocs-obsidian": "^1.0.1",
         "fumadocs-ui": "npm:@fumadocs/base-ui@16.14.0",
