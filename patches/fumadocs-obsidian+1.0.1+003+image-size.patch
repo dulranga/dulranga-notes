@@ -1,0 +1,22 @@
+diff --git a/node_modules/fumadocs-obsidian/dist/index.js b/node_modules/fumadocs-obsidian/dist/index.js
+index b5fd553..00823c2 100644
+--- a/node_modules/fumadocs-obsidian/dist/index.js
++++ b/node_modules/fumadocs-obsidian/dist/index.js
+@@ -441,12 +441,15 @@ function resolveWikilink(isEmbed, content, sourceFile, resolver) {
+ 				}]
+ 			};
+ 		}
+-		if (alias) console.warn("we do not support specifying image size like `![[image.png|300]].");
+-		return {
++		const image = {
+ 			type: "image",
+ 			url: ref.url ?? getFileHref(ref, sourceFile, heading),
+ 			alt: name
+ 		};
++		const size = alias && /^(\d+)(?:x\d+)?$/.exec(alias.trim());
++		if (size) image.data = { hProperties: { style: `max-width:${size[1]}px` } };
++		else if (alias) image.alt = alias;
++		return image;
+ 	}
+ 	let url;
+ 	if (isHeadingOnly) url = `#${getHeadingHash(heading)}`;

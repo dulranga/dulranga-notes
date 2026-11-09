@@ -204,6 +204,9 @@ Any Next.js-compatible host works. Build requires git + a clone URL, so:
   so callouts are handled by `rehype-callouts` instead.
 - **`patches/fumadocs-obsidian+1.0.1+002+table-wikilinks.patch`** — resolves
   `![[image]]` embeds inside table cells.
+- **`patches/fumadocs-obsidian+1.0.1+003+image-size.patch`** — supports
+  `![[image.png|300]]` (and `|300x200`) by treating the number as the image's
+  max width; a non-numeric alias becomes the alt text.
 
 Add further changes as new numbered patches rather than editing an existing
 one. Build caches can restore an already-patched `node_modules`, and a modified
