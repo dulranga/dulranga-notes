@@ -7,6 +7,7 @@ import rehypeCallouts from "rehype-callouts";
 import { remarkGfm, remarkMdxMermaid } from "fumadocs-core/mdx-plugins";
 import { remarkObsidianMathBlock, mathHandlers } from "./remark-math-block";
 import { remarkHtmlBreak } from "./remark-html-break";
+import { remarkDataImage, isDataImageError } from "./remark-data-image";
 
 const normalizeSlug = (seg: string) =>
   encodeURIComponent(seg.toLowerCase().replaceAll(" ", "-"));
@@ -31,7 +32,13 @@ const vault = obsidian({
     remarkObsidianMathBlock,
     remarkMath,
     remarkMdxMermaid,
+    remarkDataImage,
   ],
+  remarkImageOptions: {
+    onError(error) {
+      if (!isDataImageError(error)) throw error;
+    },
+  },
   remarkRehypeOptions: {
     handlers: mathHandlers,
   },
