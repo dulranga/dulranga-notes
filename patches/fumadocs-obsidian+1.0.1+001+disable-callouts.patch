@@ -1,0 +1,13 @@
+diff --git a/node_modules/fumadocs-obsidian/dist/index.js b/node_modules/fumadocs-obsidian/dist/index.js
+index 88b7278..695b00b 100644
+--- a/node_modules/fumadocs-obsidian/dist/index.js
++++ b/node_modules/fumadocs-obsidian/dist/index.js
+@@ -251,8 +251,6 @@ function remarkConvert({ resolver }) {
+ 			"image"
+ 		], (node) => {
+ 			if (node.type === "blockquote") {
+-				const callout = resolveCallout(node);
+-				if (callout) replace(node, callout);
+ 				return;
+ 			}
+ 			if (node.type === "link" || node.type === "image") {

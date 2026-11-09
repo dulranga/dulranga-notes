@@ -199,9 +199,15 @@ Any Next.js-compatible host works. Build requires git + a clone URL, so:
 
 ### Patches
 
-- **`patches/fumadocs-obsidian+1.0.1.patch`** — applied via `patch-package`
-  on `postinstall`; disables the internal callout resolver so callouts are
-  handled by `rehype-callouts` instead.
+- **`patches/fumadocs-obsidian+1.0.1+001+disable-callouts.patch`** — applied
+  via `patch-package` on `postinstall`; disables the internal callout resolver
+  so callouts are handled by `rehype-callouts` instead.
+- **`patches/fumadocs-obsidian+1.0.1+002+table-wikilinks.patch`** — resolves
+  `![[image]]` embeds inside table cells.
+
+Add further changes as new numbered patches rather than editing an existing
+one. Build caches can restore an already-patched `node_modules`, and a modified
+patch then fails to apply (forward and reverse), breaking `npm install`.
 
 ## Key files
 
@@ -214,4 +220,4 @@ Any Next.js-compatible host works. Build requires git + a clone URL, so:
 | `src/lib/shared.ts`                     | App name, routes, git config                                |
 | `src/app/docs/[...slug]/page.tsx`       | Static note page renderer                                   |
 | `proxy.ts`                              | Raw-markdown content negotiation                            |
-| `patches/fumadocs-obsidian+1.0.1.patch` | postinstall patch for callouts                              |
+| `patches/fumadocs-obsidian+1.0.1+*.patch` | postinstall patches for callouts and table embeds         |
