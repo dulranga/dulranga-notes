@@ -128,6 +128,11 @@ Any Next.js-compatible host works. Build requires git + a clone URL, so:
   an environment secret.
 - Pages 404 — a top-level note is named `Untitled`/`README`/`LICENSE` (excluded),
   or it lives in a git-ignored path.
+- Search works locally but returns no results after deployment — ensure
+  `next.config.mjs` includes the vault Markdown files in `outputFileTracingIncludes`
+  for `/api/search`. The endpoint reads notes at runtime, and Next.js cannot
+  automatically trace the content adapter's glob-based file discovery. Redeploy
+  after changing this configuration.
 
 ## Architecture
 
@@ -183,6 +188,8 @@ Any Next.js-compatible host works. Build requires git + a clone URL, so:
 
 - **`src/app/api/search/route.ts`** — Fumadocs `createFromSource` endpoint;
   the client-side search dialog in the layout queries it.
+- **`next.config.mjs`** — explicitly bundles vault Markdown for the search
+  function so its runtime index can be populated on serverless deployments.
 
 ### Custom MDX components (`src/components/mdx.tsx`)
 

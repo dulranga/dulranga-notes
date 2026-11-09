@@ -1,5 +1,5 @@
 diff --git a/node_modules/fumadocs-obsidian/dist/index.js b/node_modules/fumadocs-obsidian/dist/index.js
-index 88b7278..695b00b 100644
+index 88b7278..b5fd553 100644
 --- a/node_modules/fumadocs-obsidian/dist/index.js
 +++ b/node_modules/fumadocs-obsidian/dist/index.js
 @@ -251,8 +251,6 @@ function remarkConvert({ resolver }) {
@@ -11,3 +11,35 @@ index 88b7278..695b00b 100644
  				return;
  			}
  			if (node.type === "link" || node.type === "image") {
+@@ -330,6 +328,9 @@ function remarkWikilinks({ resolver }) {
+ 	return (tree, file) => {
+ 		if (!file.data.source) return;
+ 		const sourceFile = file.data.source;
++		visit(tree, "tableCell", (cell) => {
++			resolveInlineWikilinks(cell, sourceFile, resolver);
++		});
+ 		visit(tree, "paragraph", (node, index, parent) => {
+ 			if (typeof index !== "number" || !parent) return;
+ 			const replaceParagraph = [node];
+@@ -363,6 +364,21 @@ function remarkWikilinks({ resolver }) {
+ 		});
+ 	};
+ }
++/** table cells hold phrasing content directly (no paragraph), so only inline results can be used */
++function resolveInlineWikilinks(parent, sourceFile, resolver) {
++	const next = [];
++	for (const child of parent.children) {
++		if (child.type === "text") {
++			const output = resolveParagraphText(child.value, sourceFile, resolver);
++			if (output.every((item) => item.inParagraph)) {
++				for (const item of output) next.push(...item.children);
++				continue;
++			}
++		} else if ("children" in child && Array.isArray(child.children)) resolveInlineWikilinks(child, sourceFile, resolver);
++		next.push(child);
++	}
++	parent.children = next;
++}
+ function resolveParagraphText(text, sourceFile, resolver) {
+ 	const output = [];
+ 	let concat = [];
